@@ -194,3 +194,31 @@ function logData<T>(data: T): T {
 console.log(logData("hello"));
 console.log(logData({ name: "John" }));
 console.log(logData(333));
+
+//@
+// === Interface = declare structure
+
+interface Face {
+  name: string;
+  age: number;
+  fn: () => {};
+}
+
+// interface != type
+
+console.log(logData(333));
+
+// ===
+
+//@ts-check
+//@ ts-expect-error
+//@ ts-ignore
+//@ ts-nocheck
+//@ts-check
+
+function getTyple<T, U>(a: T, b: U): [T, U] {
+  return [a, b];
+}
+console.log(getTyple(33, 11));
+console.log(getTyple("string", 11));
+console.log(getTyple("hellow", " typescript"));
