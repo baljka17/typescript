@@ -222,3 +222,160 @@ function getTyple<T, U>(a: T, b: U): [T, U] {
 console.log(getTyple(33, 11));
 console.log(getTyple("string", 11));
 console.log(getTyple("hellow", " typescript"));
+
+// === infer
+
+type a = ReturnType<(a: number) => never>;
+type b = ReturnType<(a: number) => never>;
+type c = ReturnType<(a: number) => never>;
+
+// type d = ReturnType<T extends (...args: any) => any> = T extends (
+//   ...args: any
+// ) => infer R
+//   ? R
+//   : any
+// >;
+
+// === mapped type
+
+// PICK
+interface Doc {
+  id: number;
+  data: string | number[];
+  size: string | number;
+  readonly name: string;
+  location: URL;
+  owner: string;
+  date: number;
+  version: number;
+}
+
+type MyPick<T, U extends keyof T> = {
+  [K in U]: T[K];
+};
+
+type MyPickerType = MyPick<Doc, "data" | "location">;
+// let a: MyPickerType = {data:"hello", owner: 'asdfadf'}
+type ROType = Readonly<Doc>;
+
+type MyReadonly<T> = {
+  readonly [S in keyof T]: T[S];
+};
+
+type MyRonly = MyReadonly<Doc>;
+
+// +, - ? / Modify
+
+type MyRO1<T> = {
+  -readonly [S in keyof T]+?: T[S];
+};
+
+type AA = MyRO1<Doc>;
+
+// ===
+type FeatureFlags = {
+  darkMode: () => void;
+  newUserProfile: () => void;
+};
+
+type OptionFlags = {
+  darkMode: boolean;
+  newUserProfile: boolean;
+}; // Destination to implement
+
+type NewOptionFlags<T> = {
+  [K in keyof T]: boolean;
+};
+
+type BB = NewOptionFlags<FeatureFlags>;
+
+// === intersection
+
+type MyReadonlyIntersection<T> = {
+  [K in keyof T]+?: T[K];
+} & { id: number; name: string; abcd: string }; // no question mark, add custom property
+
+type CC = MyReadonlyIntersection<Doc>;
+
+let doc1: CC = {
+  id: 312,
+  name: "John Doe",
+  abcd: "Alphabet",
+};
+
+// === AS
+
+type MyGetter<T> = {
+  // [K in keyof T as `hello`]: T[K];
+  // [K in keyof T as `get${string & K}`]: T[K];
+  // [K in keyof T as `get${Capitalize<string & K>}`]: T[K];
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];
+};
+
+type as1 = MyGetter<Doc>;
+
+// === Exclude Property
+
+type ExcludeProperty<T> = {
+  // [K in keyof T]: T[K];
+  // [K in keyof T as never]: T[K];
+  // [K in keyof T as Delete<K, "owner" | "date" | "size">]: T[K];
+  [K in keyof T as Exclude<K, "owner" | "date" | "size" | "location">]: T[K];
+};
+
+type DD = ExcludeProperty<Doc>;
+
+type Delete<T, U> = T extends U ? never : T;
+
+// Delete<"owner", "owner" | "date">;
+
+type D2 = Delete<"a", "c" | "a" | "b">;
+
+// === mapping example 1
+
+type SquareEvent = { kind: "square"; x: number; y: number };
+type CircleEvent = { kind: "circle"; radius: number };
+
+type GenerateEventListener<Events extends { kind: string }> = {
+  [E in Events as `on${Capitalize<E["kind"]>}Event`]: (event: E) => void;
+};
+
+type EventListeners = GenerateEventListener<SquareEvent | CircleEvent>;
+
+// === mapping example 2
+
+type DBFields = {
+  id: { format: "increment" };
+  name: { type: string; length: number };
+  password: { type: string; length: number; secret: true };
+  creditcard: { number: string; expire: string; secret: true };
+};
+
+type PublicFields<T> = {
+  [K in keyof T]: T[K] extends { secret: true } ? true : false;
+};
+
+type SecretKeys = PublicFields<DBFields>;
+
+// === template type/ template literal type
+
+type World = "world";
+
+let www: World = "world"; // world2222 ?!?!?!
+
+type Greeting = `hello ${World}`;
+
+let greet: Greeting = "hello world";
+// let greet: Greeting = "hello world1111"; // Error!!
+
+type Width = `${number}px`;
+
+const squareWidth: Width = "100px";
+// const squareWidth: Width = "100"; // !!!
+
+type Metric = "px" | "rem" | "em"; // union
+type FontSize = `${number}${Metric}`;
+
+let heading1Size: FontSize = "2rem";
+// let heading1Size: FontSize = "2"; // !!
+// let heading1Size: FontSize = "2pt"; // !!
