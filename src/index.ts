@@ -210,11 +210,10 @@ console.log(logData(333));
 
 // ===
 
-//@ts-check
+//@ ts-check
 //@ ts-expect-error
 //@ ts-ignore
 //@ ts-nocheck
-//@ts-check
 
 function getTyple<T, U>(a: T, b: U): [T, U] {
   return [a, b];
@@ -379,3 +378,53 @@ type FontSize = `${number}${Metric}`;
 let heading1Size: FontSize = "2rem";
 // let heading1Size: FontSize = "2"; // !!
 // let heading1Size: FontSize = "2pt"; // !!
+
+// module
+
+// declaration files *.d.ts
+
+// let history = 11;
+
+myLib.hello("greeting from another file!");
+
+// === Decorator
+
+function Component(selector: string, template: string) {
+  // console.log(cnFunction);
+  return function (cnFunction: any) {
+    const element = document.getElementById(selector);
+    element!.innerHTML = template;
+  };
+}
+
+@Component("myapp", "<h1>It is done!</h1>")
+// @Component
+class Person {
+  public name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+  getName() {
+    console.log(this.name);
+  }
+}
+
+// Example of a class decorator
+function classDecorator<T extends { new (...args: any[]): {} }>(
+  constructor: T
+) {
+  return class extends constructor {
+    newProperty = "new property";
+    hello = "override";
+  };
+}
+
+@classDecorator
+class ExampleClass {
+  property = "property";
+}
+//@ts-nocheck
+const example = new ExampleClass();
+console.log(example.property); // "property"
+// console.log(example.newProperty); // "new property"
+// console.log(example.hello); // "override"
